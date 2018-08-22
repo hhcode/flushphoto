@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * @Author huangjihui
  * @Date 2018/8/22 18:30
@@ -18,15 +21,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class FlushPhotoController {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlushPhotoController.class);
 
+    ExecutorService executor = Executors.newCachedThreadPool();
+
     private static int start = 0;
 
     @RequestMapping("/downPhotos")
-    public void downPhotos(@RequestParam(name = "page",required = true) int page) {
-        for (int i = 0; i < page; i++) {
-            start = i * 10;
-            JSONObject photoJson = HttpClientUtil.httpGet(getUrl(6, start, 10));
-            getPhotosByJson(photoJson, i);
-        }
+    public void downPhotos(@RequestParam(name = "page", required = true) final int page, @RequestParam(name = "start") final int startT) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < page; i++) {
+                    start = i * 10 + startT;
+                    JSONObject photoJson = HttpClientUtil.httpGet(getUrl(6, start, 10));
+                    getPhotosByJson(photoJson, start);
+                }
+            }
+        });
+
 
     }
 
@@ -36,7 +47,7 @@ public class FlushPhotoController {
             JSONObject photoData = photoArray.getJSONObject(i);
             String photoUrl = photoData.getString("url_mobile");
             LOGGER.info(photoUrl);
-            HttpClientUtil.download(photoUrl, "D:\\photos\\" + j + "" + i + ".jpg");
+            HttpClientUtil.download(photoUrl, "/home/huang/photos/" + (start + i) + ".jpg");
         }
     }
 

@@ -43,7 +43,7 @@ public class HttpClientUtil {
      * post请求传输json参数
      *
      * @param url  url地址
-     * @param json 参数
+     * @param jsonParam 参数
      * @return
      */
     public static JSONObject httpPost(String url, JSONObject jsonParam) {
@@ -161,9 +161,8 @@ public class HttpClientUtil {
      *
      * @param url
      * @param filePath
-     * @param progress 进度回调
      */
-    public static void download(String url, String filePath) {
+    public static void download(final String url, final String filePath) {
         downloadExcutorService.execute(new Runnable() {
 
             @Override
