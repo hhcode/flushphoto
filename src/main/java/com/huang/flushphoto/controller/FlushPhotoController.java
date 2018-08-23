@@ -21,20 +21,19 @@ import java.util.concurrent.Executors;
 public class FlushPhotoController {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlushPhotoController.class);
 
-    ExecutorService executor = Executors.newCachedThreadPool();
+    private ExecutorService executor = Executors.newCachedThreadPool();
+
+    private static String FILEPATH = "/home/huang/photos/";
 
     private static int start = 0;
 
     @RequestMapping("/downPhotos")
-    public void downPhotos(@RequestParam(name = "page", required = true) final int page, @RequestParam(name = "start") final int startT) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < page; i++) {
-                    start = i * 10 + startT;
-                    JSONObject photoJson = HttpClientUtil.httpGet(getUrl(6, start, 10));
-                    getPhotosByJson(photoJson, start);
-                }
+    public void downPhotos(@RequestParam(name = "page") final int page, @RequestParam(name = "start") final int startT) {
+        executor.execute(() -> {
+            for (int i = 0; i < page; i++) {
+                start = i * 10 + startT;
+                JSONObject photoJson = HttpClientUtil.httpGet(getUrl(6, start, 10));
+                getPhotosByJson(photoJson, start);
             }
         });
 
@@ -46,8 +45,8 @@ public class FlushPhotoController {
         for (int i = 0; i < photoArray.size(); i++) {
             JSONObject photoData = photoArray.getJSONObject(i);
             String photoUrl = photoData.getString("url_mobile");
-            LOGGER.info(photoUrl);
-            HttpClientUtil.download(photoUrl, "/home/huang/photos/" + (start + i) + ".jpg");
+            LOGGER.info(photoUrl + "       " + (start + i));
+            HttpClientUtil.download(photoUrl, FILEPATH + (start + i) + ".jpg");
         }
     }
 
