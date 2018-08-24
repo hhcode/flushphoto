@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.huang.flushphoto.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +47,18 @@ public class FlushPhotoController {
         for (int i = 0; i < photoArray.size(); i++) {
             JSONObject photoData = photoArray.getJSONObject(i);
             String photoUrl = photoData.getString("url_mobile");
+            if (StringUtils.isEmpty(photoUrl)) {
+                photoUrl = photoData.getString("url");
+            }
+            if (StringUtils.isEmpty(photoUrl)) {
+                photoUrl = photoData.getString("img_1600_900");
+            }
+            if (StringUtils.isEmpty(photoUrl)) {
+                photoUrl = photoData.getString("img_1440_900");
+            }
+            if (StringUtils.isEmpty(photoUrl)) {
+                photoUrl = photoData.getString("img_1280_800");
+            }
             LOGGER.info(photoUrl + "      " + String.valueOf(start + i));
             HttpClientUtil.download(photoUrl, FILEPATH + (start + i) + ".jpg");
         }
