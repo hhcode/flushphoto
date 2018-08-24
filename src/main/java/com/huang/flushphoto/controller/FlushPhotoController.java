@@ -41,6 +41,7 @@ public class FlushPhotoController {
     }
 
     private void getPhotosByJson(JSONObject photoJson, int j) {
+        LOGGER.info(photoJson.toJSONString());
         JSONArray photoArray = photoJson.getJSONArray("data");
         for (int i = 0; i < photoArray.size(); i++) {
             JSONObject photoData = photoArray.getJSONObject(i);
@@ -53,6 +54,7 @@ public class FlushPhotoController {
     private String getUrl(int cid, int start, int count) {
         StringBuffer sb = new StringBuffer();
         sb.append("http://wallpaper.apc.360.cn/index.php?c=WallPaper&a=getAppsByCategory&cid=").append(cid).append("&start=").append(start).append("&count=").append(count).append("&from=360chrome");
+        LOGGER.info(sb.toString());
         return sb.toString();
     }
 }
