@@ -32,6 +32,11 @@ public class FlushPhotoController {
     public void downPhotos(@RequestParam(name = "page") final int page, @RequestParam(name = "start") final int startT) {
         executor.execute(() -> {
             for (int i = 0; i < page; i++) {
+                try {
+                    Thread.sleep(5000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 start = i * 10 + startT;
                 JSONObject photoJson = HttpClientUtil.httpGet(getUrl(6, start, 10));
                 getPhotosByJson(photoJson, start);
