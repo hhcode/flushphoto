@@ -141,14 +141,20 @@ public class HttpClientUtil {
             response = client.execute(request);
         } catch (IOException e) {
             try {
+                Thread.sleep(3000L);
                 response = client.execute(request);
             } catch (IOException e2) {
                 try {
+                    Thread.sleep(10000L);
                     response = client.execute(request);
                 } catch (IOException e1) {
                     logger.error("get请求提交失败:" + url, e1);
                     e1.printStackTrace();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
                 }
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
             }
         } finally {
             request.releaseConnection();
