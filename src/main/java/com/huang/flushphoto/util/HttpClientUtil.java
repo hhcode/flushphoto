@@ -36,13 +36,13 @@ public class HttpClientUtil {
 
     static {
         downloadExcutorService = Executors.newCachedThreadPool();
-        requestConfig = RequestConfig.custom().setSocketTimeout(2000).setConnectTimeout(2000).build();
+        requestConfig = RequestConfig.custom().setSocketTimeout(10000).setConnectTimeout(5000).build();
     }
 
     /**
      * post请求传输json参数
      *
-     * @param url  url地址
+     * @param url       url地址
      * @param jsonParam 参数
      * @return
      */
@@ -131,27 +131,45 @@ public class HttpClientUtil {
         // get请求返回结果
         JSONObject jsonResult = null;
         CloseableHttpClient client = HttpClients.createDefault();
+
         // 发送get请求
         HttpGet request = new HttpGet(url);
         request.setConfig(requestConfig);
+        CloseableHttpResponse response = null;
+        // http请求重试三次
         try {
-            CloseableHttpResponse response = client.execute(request);
-
-            // 请求发送成功，并得到响应
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                // 读取服务器返回过来的json字符串数据
-                HttpEntity entity = response.getEntity();
-                String strResult = EntityUtils.toString(entity, "utf-8");
-                // 把json字符串转换成json对象
-                jsonResult = JSONObject.parseObject(strResult);
-            } else {
-                logger.error("get请求提交失败:" + url);
-            }
+            response = client.execute(request);
         } catch (IOException e) {
-            logger.error("get请求提交失败:" + url, e);
+            try {
+                response = client.execute(request);
+            } catch (IOException e2) {
+                try {
+                    response = client.execute(request);
+                } catch (IOException e1) {
+                    logger.error("get请求提交失败:" + url, e1);
+                    e1.printStackTrace();
+                }
+            }
         } finally {
             request.releaseConnection();
         }
+
+        // 请求发送成功，并得到响应
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            // 读取服务器返回过来的json字符串数据
+            HttpEntity entity = response.getEntity();
+            String strResult = null;
+            try {
+                strResult = EntityUtils.toString(entity, "utf-8");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // 把json字符串转换成json对象
+            jsonResult = JSONObject.parseObject(strResult);
+        } else {
+            logger.error("get请求提交失败:" + url);
+        }
+
         return jsonResult;
     }
 
