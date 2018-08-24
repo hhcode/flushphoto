@@ -45,7 +45,7 @@ public class FlushPhotoController {
         for (int i = 0; i < photoArray.size(); i++) {
             JSONObject photoData = photoArray.getJSONObject(i);
             String photoUrl = photoData.getString("url_mobile");
-            LOGGER.info(String.valueOf(start + i));
+            LOGGER.info(photoUrl + "      " + String.valueOf(start + i));
             HttpClientUtil.download(photoUrl, FILEPATH + (start + i) + ".jpg");
         }
     }
